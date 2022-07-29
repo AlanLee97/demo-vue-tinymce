@@ -75,7 +75,7 @@ export default {
         // table_resize_bars: false,
 
         plugins: "link image media table lists fullscreen quickbars importcss",
-        content_css: '/tinymce/skins/ui/oxide/index.css',
+        // content_css: '/tinymce/skins/ui/oxide/index.css',
         importcss_exclusive: false,
         language: 'zh_CN', //本地化设置
         // language_url: "/tinymce/langs/zh-Hans.js", //使用language_url会相对灵活
@@ -207,14 +207,13 @@ export default {
             let ftd = tr.firstChild;
             ftd.style.cursor = 'pointer';
             ftd.style.position = 'relative';
+            // eslint-disable-next-line no-unused-vars
             ftd.addEventListener('click', e => {
-              console.log(e);
+              // console.log(e);
               // that.dialogVisible2 = true;
               that.currentFTD = ftd;
 
-              ftd.addEventListener('click', e => {
-                console.log(e)
-                this.popoverVisible = false;
+              this.popoverVisible = false;
                 // 设置popover的位置信息
                 setTimeout(() => {
                   let wrapperRect = document.querySelector('div[role="application"]').getBoundingClientRect();
@@ -231,8 +230,7 @@ export default {
                   this.popoverVisible = true;
                   
                   console.log({wrapperRect, tdRect, rect})
-                  })
-              })
+                })
             });
           }
 
