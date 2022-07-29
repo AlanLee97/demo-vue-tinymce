@@ -1,6 +1,6 @@
 <!-- # src/App.vue -->
 <template>
-  <div>
+  <div class="rich-text-table">
     <div id="logo">
       <img alt="Vue+Tinymce"
         src="https://raw.githubusercontent.com/lpreterite/vue-tinymce/HEAD/docs/assets/vu-tinymce-logo.png">
@@ -269,6 +269,21 @@ export default {
 </script>
 
 <style lang="scss">
+
+.rich-text-table {
+  .el-popover {
+    background-color: transparent;
+    box-shadow: unset;
+    border: none;
+    width: 200px;
+  }
+  .el-select {
+    width: 200px;
+  }
+}
+.el-select-dropdown {
+  width: 200px;
+}
 #logo {
   display: flex;
   justify-content: center;
