@@ -1,28 +1,77 @@
+<!-- # src/App.vue -->
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <RichtextTable />
+    <!-- 
+    <div class="btn-area">
+      <el-button class="btn-style" :type="isTable ? 'primary' : ''" @click="chooseSolution('table')">表格方案</el-button>
+      <el-button :type="isExcel ? 'primary' : ''" @click="chooseSolution('excel')">Excel方案</el-button>
+    </div> 
+
+    <div class="content-area">
+      <ExcelLuckysheets v-if="isExcel" />
+      <RichtextTable v-if="isTable"/>
+    </div>
+    -->
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+// import ExcelLuckysheets from './components/ExcelLuckysheet.vue';
+import RichtextTable from './components/RichtextTable.vue';
 
 export default {
-  name: 'App',
+  name: 'app',
   components: {
-    HelloWorld
+    // ExcelLuckysheets,
+    RichtextTable,
+  },
+  data() {
+    return {
+      selectedSolution: 'table',
+    }
+  },
+  computed: {
+    isTable() {
+      return this.selectedSolution === 'table';
+    },
+    isExcel() {
+      return this.selectedSolution === 'excel';
+    },
+    activeSolution() {
+      return (this.isTable || this.isExcel) ? 'primary' : ''
+    }
+  },
+  mounted() {
+
+  },
+
+  methods: {
+    chooseSolution(val) {
+      this.selectedSolution = val;
+    }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+
+.btn-area {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  .btn-style {
+    margin-right: 30px;
+  }
+}
+
+.content-area {
+  // position: relative;
+}
+
 </style>
