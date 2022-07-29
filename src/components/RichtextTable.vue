@@ -214,8 +214,6 @@ export default {
 
               ftd.addEventListener('click', e => {
                 console.log(e)
-                let elBtn = this.$refs['elBtn'];
-                console.log({ elBtn }, typeof elBtn.$el);
                 this.popoverVisible = false;
                 // 设置popover的位置信息
                 setTimeout(() => {
