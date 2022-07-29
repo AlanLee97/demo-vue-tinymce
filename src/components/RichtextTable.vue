@@ -68,7 +68,7 @@ export default {
       setting: {
         menubar: false,
 
-        toolbar: "undo redo | forecolor | bold italic underline strikethrough | formatselect alignleft aligncenter alignright alignjustify | table",
+        toolbar: "undo redo | table image | forecolor | bold italic underline strikethrough | formatselect alignleft aligncenter alignright alignjustify",
         table_toolbar: 'tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow tabledeletecol',
         toolbar_drawer: "sliding",
         quickbars_selection_toolbar: "removeformat | bold italic underline strikethrough | fontsizeselect forecolor backcolor",
@@ -155,6 +155,9 @@ export default {
     })
     this.editor.on('blur', val => {
       console.log('blur', val)
+    })
+    document.addEventListener('click', () => {
+      this.popoverVisible = false;
     })
   },
 
