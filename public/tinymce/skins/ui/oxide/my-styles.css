@@ -1,3 +1,14 @@
 td {
-    color: red !important;
+  line-height: 2;
+}
+
+.expand {
+  color: red;
+  position: relative;
+}
+
+.expand::after {
+  content: '♦️';
+  display: block;
+  position: absolute;
 }

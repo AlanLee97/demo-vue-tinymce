@@ -11,20 +11,19 @@
       top: `${popoverPosition.y + 100}px`,
       left: `${popoverPosition.x}px`,
     }">
-      <el-popover
+    <el-popover
         placement="top-start"
         width="250"
         trigger="manual"
+        popper-class="my-popper-class"
         v-model="popoverVisible"
         >
-          <el-select v-model="selectedValue" placeholder="请选择" @change="handleSelectChange">
-            <el-option
-              v-for="item in genOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
+          <div
+            class="popover-item"
+            v-for="item in genOptions"
+            :key="item.value" @click="hnadleClickPopoverItem(item.value)">
+            {{item.value}}
+          </div>
       </el-popover>
     </div>
 
@@ -61,6 +60,7 @@ export default {
   name: 'RichtextTable',
   data() {
     return {
+      popoverVisible2: true,
       loadingTinymce: true,
       // 初始化表格数据
       content: `<table style="border-collapse: collapse; width: 100%; height: 179.125px;" border="1" data-mce-style="border-collapse: collapse; width: 100%; height: 179.125px;" data-mce-selected="1"><colgroup><col style="width: 33.274%;" data-mce-style="width: 33.274%;"><col style="width: 33.274%;" data-mce-style="width: 33.274%;"><col style="width: 33.274%;" data-mce-style="width: 33.274%;"></colgroup><tbody><tr style="height: 22.3906px;" data-mce-style="height: 22.3906px;"><td style="background-color: rgb(236, 202, 250); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;" data-mce-style="background-color: rgb(236, 202, 250); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;"><br></td><td style="background-color: rgb(236, 202, 250); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(236, 202, 250); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;"><span style="color: rgb(255, 255, 255);" data-mce-style="color: rgb(255, 255, 255);"><strong>原方案续保</strong></span></td><td style="background-color: rgb(236, 202, 250); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(236, 202, 250); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;"><span style="color: rgb(255, 255, 255);" data-mce-style="color: rgb(255, 255, 255);"><strong>升级方案续保</strong></span></td></tr><tr style="height: 44.7812px;" data-mce-style="height: 44.7812px;"><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 44.7812px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 44.7812px;">产品名称</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;">平安承认意外险</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;">中国人保大户甲3号承认意外险</td></tr><tr style="height: 44.7812px;" data-mce-style="height: 44.7812px;"><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 44.7812px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 44.7812px;">承保公司</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;">中国平安财产股份有限公司</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 44.7812px;">中国人民财产股份有限公司</td></tr><tr style="height: 22.3906px;" data-mce-style="height: 22.3906px;"><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;">投保年龄</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">20万/30万</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;"><br></td></tr><tr style="height: 22.3906px;" data-mce-style="height: 22.3906px;"><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;">意外住院津贴</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">1万/2万/3万</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;"><br></td></tr><tr style="height: 22.3906px;" data-mce-style="height: 22.3906px;"><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer; height: 22.3906px;">豁免保费</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">无</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;"><br></td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">等待期</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">20万/30万</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;">无</td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">保险期限</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">1万/2万/3万</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;"><br></td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">保证续保期限</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">无</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;">无</td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">犹豫期</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">20万/30万</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;"><br></td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">保费</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">1万/2万/3万</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;">无</td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">意外身故/伤残</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; height: 22.3906px;">无</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;"><br></td></tr><tr><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center; cursor: pointer;">急性病身故（如猝死）</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;">无</td><td style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;" data-mce-style="background-color: rgb(243, 243, 243); border-color: rgb(255, 255, 255); border-style: solid; border-width: 2px; text-align: center;"><br></td></tr></tbody></table>`,
@@ -68,14 +68,14 @@ export default {
       setting: {
         menubar: false,
 
-        toolbar: "undo redo | table image | forecolor | bold italic underline strikethrough | formatselect alignleft aligncenter alignright alignjustify",
+        toolbar: "undo redo | table tableinsertrowafter tabledeleterow | image | forecolor bold italic underline strikethrough | formatselect alignleft aligncenter alignright alignjustify",
         table_toolbar: 'tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow tabledeletecol',
         toolbar_drawer: "sliding",
         quickbars_selection_toolbar: "removeformat | bold italic underline strikethrough | fontsizeselect forecolor backcolor",
         // table_resize_bars: false,
 
         plugins: "link image media table lists fullscreen quickbars importcss",
-        // content_css: '/tinymce/skins/ui/oxide/index.css',
+        content_css: '/tinymce/skins/ui/oxide/my-styles.css',
         importcss_exclusive: false,
         language: 'zh_CN', //本地化设置
         // language_url: "/tinymce/langs/zh-Hans.js", //使用language_url会相对灵活
@@ -185,6 +185,11 @@ export default {
       this.selectedValue = '';
     },
 
+    hnadleClickPopoverItem(val) {
+      this.handleSelectChange(val);
+      console.log('hnadleClickPopoverItem', val);
+    },
+
     // 关闭预览弹窗
     closePreviewDialog() {
       this.previewDialogVisible = false;
@@ -210,6 +215,14 @@ export default {
             let ftd = tr.firstChild;
             ftd.style.cursor = 'pointer';
             ftd.style.position = 'relative';
+            ftd.addEventListener('mouseenter', (e) => {
+              console.log('mouseenter', e)
+              ftd.setAttribute('class', 'expand')
+            })
+            ftd.addEventListener('mouseleave', (e) => {
+              console.log('mouseleave', e)
+              ftd.setAttribute('class', '')
+            })
             // eslint-disable-next-line no-unused-vars
             ftd.addEventListener('click', e => {
               // console.log(e);
@@ -218,7 +231,7 @@ export default {
 
               this.popoverVisible = false;
                 // 设置popover的位置信息
-                setTimeout(() => {
+              setTimeout(() => {
                   let wrapperRect = document.querySelector('div[role="application"]').getBoundingClientRect();
                   let tdRect = ftd.getBoundingClientRect();
                   let rect = {
@@ -275,10 +288,10 @@ export default {
 
 .rich-text-table {
   .el-popover {
-    background-color: transparent;
     box-shadow: unset;
     border: none;
     width: 200px;
+    padding: 0;
   }
   .el-select {
     width: 200px;
@@ -338,4 +351,36 @@ export default {
   position: fixed;
   z-index: 999;
 }
+
+.my-popper-class {
+  background-color: #fff;
+  height: 160px;
+  overflow: scroll;
+  overflow-x: hidden;
+  padding: 0 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 12px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgb(126, 126, 126, 0.5);
+    border-radius: 10px;
+  }
+  
+  .popover-item {
+    line-height: 2.5;
+    padding: 0 16px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f1f1f1;
+    }
+  }
+}
+
+
 </style>
