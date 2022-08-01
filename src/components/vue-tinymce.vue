@@ -105,9 +105,10 @@ export default {
                             this.status = INIT
                             this.changedLog(e, this.status, editor.getContent(), "--")
                         })
-                        editor.on('input keyup Change Undo Redo ExecCommand', e=>{
-                            this.onChanged(e, editor)
-                        })
+                        // editor.on('input keyup Change Undo Redo ExecCommand', e=>{
+                        //     this.onChanged(e, editor)
+                        // })
+                        // 初始化完成事件
                         vm.$emit('inited', this.editor.getContent());
                     });
                 }

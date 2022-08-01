@@ -23,7 +23,7 @@
     <!-- 富文本编辑器 -->
     <div class="vue-tinymce-wrapper">
       <h2 v-show="loadingTinymce" style="text-align: center;">加载中...</h2>
-      <vue-tinymce ref="vue-tinymce" v-model="content" :setting="setting" @change="tinymceChange" @inited="handleInited" @updated="handleUpdated" />
+      <vue-tinymce ref="vue-tinymce" v-model="content" :setting="setting" @change="tinymceChange" @inited="handleInited" />
     </div>
 
     <!-- 底部按钮操作区域 -->
@@ -154,9 +154,11 @@ export default {
     this.editor.on('input', val => {
       console.log('input', val)
     })
-    // this.editor.on('focus', val => {
-    //   console.log('focus', val)
-    // })
+    this.editor.on('focus', val => {
+      console.log('focus', val)
+      val.stopPropagation();
+      val.preventDefault();
+    })
     // this.editor.on('blur', val => {
     //   console.log('blur', val)
     // })
@@ -196,11 +198,7 @@ export default {
   methods: {
     handleInited(e) {
       log('handleInited', { e });
-      // this.afterContentChange(e);
-    },
-    handleUpdated(e) {
-      log('handleUpdated', { e });
-      // this.afterContentChange(e);
+      this.afterContentChange(e);
     },
     handleSelectChange(e) {
       console.log('handleSelectChange', e)
@@ -281,12 +279,12 @@ export default {
                 this.popoverVisible = true;
                 this.lastContent = e;
 
-                console.log({ wrapperRect, tdRect, rect })
+                // console.log({ wrapperRect, tdRect, rect })
                 this.lastContent = this.editor.getContent();
 
               })
             });
-            log({ftd});
+            // log({ftd});
           }
 
           [...tr.children].forEach((td, i2) => {
@@ -301,15 +299,12 @@ export default {
           })
         })
         this.lastContent = e;
-        // window.hasHandled = true;
       })
     },
     // 富文本内容改变
     tinymceChange(e) {
       if (e === this.lastContent) return;
       this.loadingTinymce = false;
-      console.log('tinymceChange', { e, childDocument: this.editor.dom.doc });
-      this.afterContentChange(e);
     },
     // 生成图片
     async genImg() {
@@ -329,12 +324,6 @@ export default {
       })
     },
   },
-  // beforeUpdate() {
-  //   log('【beforeUpdate】')
-  // },
-  // updated() {
-  //   log('【updated】')
-  // }
 }
 </script>
 
