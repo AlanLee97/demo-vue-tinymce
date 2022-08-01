@@ -3,7 +3,7 @@
   <div class="rich-text-table">
     <div id="logo">
       <img alt="Vue+Tinymce"
-        src="https://raw.githubusercontent.com/lpreterite/vue-tinymce/HEAD/docs/assets/vu-tinymce-logo.png">
+        src="../assets/vu-tinymce-logo[1].png">
     </div>
 
     <!-- 悬浮的popover -->
@@ -23,7 +23,7 @@
     <!-- 富文本编辑器 -->
     <div class="vue-tinymce-wrapper">
       <h2 v-show="loadingTinymce" style="text-align: center;">加载中...</h2>
-      <vue-tinymce ref="vue-tinymce" v-model="content" :setting="setting" @change="tinymceChange" />
+      <vue-tinymce ref="vue-tinymce" v-model="content" :setting="setting" @change="tinymceChange" @inited="handleInited" @updated="handleUpdated" />
     </div>
 
     <!-- 底部按钮操作区域 -->
@@ -48,11 +48,16 @@
 
 <script>
 import html2canvas from 'html2canvas';
+import VueTinymce from './vue-tinymce.vue'
+
 
 const { log } = console;
 
 export default {
   name: 'RichtextTable',
+  components: {
+    VueTinymce
+  },
   data() {
     return {
       popoverVisible2: true,
@@ -72,9 +77,9 @@ export default {
         plugins: "link image media table lists fullscreen quickbars importcss",
         content_css: '/tinymce/skins/ui/oxide/my-styles.css',
         importcss_exclusive: false,
-        language: 'zh_CN', //本地化设置
+        language: 'zh-Hans', //本地化设置
         // language_url: "/tinymce/langs/zh-Hans.js", //使用language_url会相对灵活
-        language_url: "https://lab.uxfeel.com/node_modules/tinymce/langs/zh_CN.js", //使用language_url会相对灵活
+        // language_url: "https://lab.uxfeel.com/node_modules/tinymce/langs/zh_CN.js", //使用language_url会相对灵活
         height: 650,
         branding: false, // 隐藏右下角技术支持
         elementpath: false, // 隐藏底栏的元素路径
@@ -143,18 +148,18 @@ export default {
     this.editor = this.$refs['vue-tinymce'].editor;
     console.log('tinymce editor', this.editor);
     window.editor = this.editor;
-    this.editor.on('newrow', val => {
-      console.log('newrow', val)
-    })
+    // this.editor.on('newrow', val => {
+    //   console.log('newrow', val)
+    // })
     this.editor.on('input', val => {
       console.log('input', val)
     })
-    this.editor.on('focus', val => {
-      console.log('focus', val)
-    })
-    this.editor.on('blur', val => {
-      console.log('blur', val)
-    })
+    // this.editor.on('focus', val => {
+    //   console.log('focus', val)
+    // })
+    // this.editor.on('blur', val => {
+    //   console.log('blur', val)
+    // })
     document.addEventListener('click', () => {
       this.popoverVisible = false;
     })
@@ -189,6 +194,14 @@ export default {
   },
 
   methods: {
+    handleInited(e) {
+      log('handleInited', { e });
+      // this.afterContentChange(e);
+    },
+    handleUpdated(e) {
+      log('handleUpdated', { e });
+      // this.afterContentChange(e);
+    },
     handleSelectChange(e) {
       console.log('handleSelectChange', e)
       this.selectedValue = e;
@@ -219,16 +232,15 @@ export default {
         this.previewDialogVisible = true;
       });
     },
-    // 富文本内容改变
-    tinymceChange(e) {
-      if (e === this.lastContent) return;
-      this.loadingTinymce = false;
-      console.log('tinymceChange', { e });
+    afterContentChange(e) {
+      window.childDocument = this.editor.dom.doc;
       let that = this;
+      // if (window.hasHandled) return;
       this.$nextTick(() => {
         let childDocument = this.editor.dom.doc;
         this.childDocument = childDocument;
         let trList = childDocument.querySelectorAll('tr');
+        log('更新DOM事件');
         [...trList].forEach((tr, index) => {
           // 排除第一个td
           if (index > 0) {
@@ -247,6 +259,7 @@ export default {
             })
             // eslint-disable-next-line no-unused-vars
             ftd.addEventListener('click', e => {
+              log('click ftd', ftd);
               that.currentFTD = ftd;
               that.currentFTDID = ftd.id;
 
@@ -273,6 +286,7 @@ export default {
 
               })
             });
+            log({ftd});
           }
 
           [...tr.children].forEach((td, i2) => {
@@ -287,8 +301,15 @@ export default {
           })
         })
         this.lastContent = e;
-
+        // window.hasHandled = true;
       })
+    },
+    // 富文本内容改变
+    tinymceChange(e) {
+      if (e === this.lastContent) return;
+      this.loadingTinymce = false;
+      console.log('tinymceChange', { e, childDocument: this.editor.dom.doc });
+      this.afterContentChange(e);
     },
     // 生成图片
     async genImg() {
@@ -308,12 +329,12 @@ export default {
       })
     },
   },
-  beforeUpdate() {
-    log('【beforeUpdate】')
-  },
-  updated() {
-    log('【updated】')
-  }
+  // beforeUpdate() {
+  //   log('【beforeUpdate】')
+  // },
+  // updated() {
+  //   log('【updated】')
+  // }
 }
 </script>
 
