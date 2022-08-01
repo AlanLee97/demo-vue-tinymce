@@ -8,22 +8,15 @@
 
     <!-- 悬浮的popover -->
     <div v-if="popoverVisible" class="fixed-popover" :style="{
-      top: `${popoverPosition.y + 100}px`,
+      top: `${popoverPosition.y + 80}px`,
       left: `${popoverPosition.x}px`,
     }">
-    <el-popover
-        placement="top-start"
-        width="250"
-        trigger="manual"
-        popper-class="my-popper-class"
-        v-model="popoverVisible"
-        >
-          <div
-            class="popover-item"
-            v-for="item in genOptions"
-            :key="item.value" @click="hnadleClickPopoverItem(item.value)">
-            {{item.value}}
-          </div>
+      <el-popover placement="top-start" :width="popoverPosition.width" trigger="manual" popper-class="my-popper-class"
+        v-model="popoverVisible">
+        <div class="popover-item" v-for="item in genOptions" :key="item.value"
+          @click="hnadleClickPopoverItem(item.value)">
+          {{ item.value }}
+        </div>
       </el-popover>
     </div>
 
@@ -55,6 +48,8 @@
 
 <script>
 import html2canvas from 'html2canvas';
+
+const { log } = console;
 
 export default {
   name: 'RichtextTable',
@@ -136,14 +131,18 @@ export default {
 住院费用报销`,
       selectedValue: '', // 下拉框选择的值
       currentFTD: null, // 当前的第一列的第一个单元格的元素
+      currentFTDID: '', // 当前的第一列的第一个单元格的元素
       popoverVisible: false, // popover可见性
       popoverPosition: {}, // popover位置信息
+      childDocument: null,
+      lastContent: '',
     }
   },
   mounted() {
     this.tinymceInstance = this.$refs['vue-tinymce'];
     this.editor = this.$refs['vue-tinymce'].editor;
     console.log('tinymce editor', this.editor);
+    window.editor = this.editor;
     this.editor.on('newrow', val => {
       console.log('newrow', val)
     })
@@ -176,13 +175,32 @@ export default {
     }
   },
 
+  watch: {
+    popoverVisible(newVal) {
+      if (newVal === false) {
+        setTimeout(() => {
+          let td = this.childDocument.getElementById(this.currentFTDID);
+          console.log({ currentFTD: this.currentFTD, td });
+          td.setAttribute('class', '')
+          log('已关闭popover')
+        })
+      }
+    }
+  },
+
   methods: {
     handleSelectChange(e) {
       console.log('handleSelectChange', e)
       this.selectedValue = e;
-      this.currentFTD.textContent = e;
+
       this.popoverVisible = false;
+
       this.selectedValue = '';
+      setTimeout(() => {
+        let td = this.childDocument.getElementById(this.currentFTDID);
+        td.textContent = e;
+        td.setAttribute('class', '')
+      })
     },
 
     hnadleClickPopoverItem(val) {
@@ -203,11 +221,13 @@ export default {
     },
     // 富文本内容改变
     tinymceChange(e) {
+      if (e === this.lastContent) return;
       this.loadingTinymce = false;
       console.log('tinymceChange', { e });
       let that = this;
       this.$nextTick(() => {
         let childDocument = this.editor.dom.doc;
+        this.childDocument = childDocument;
         let trList = childDocument.querySelectorAll('tr');
         [...trList].forEach((tr, index) => {
           // 排除第一个td
@@ -215,38 +235,43 @@ export default {
             let ftd = tr.firstChild;
             ftd.style.cursor = 'pointer';
             ftd.style.position = 'relative';
-            ftd.addEventListener('mouseenter', (e) => {
-              console.log('mouseenter', e)
+            ftd.addEventListener('mouseenter', () => {
+              // console.log('mouseenter', e)
               ftd.setAttribute('class', 'expand')
+              // this.lastContent = this.editor.getContent();
             })
-            ftd.addEventListener('mouseleave', (e) => {
-              console.log('mouseleave', e)
-              ftd.setAttribute('class', '')
+            ftd.addEventListener('mouseleave', () => {
+              // console.log('mouseleave', e)
+              ftd.setAttribute('class', ftd.className.replace('expand', ''))
+              // this.lastContent = this.editor.getContent();
             })
             // eslint-disable-next-line no-unused-vars
             ftd.addEventListener('click', e => {
-              // console.log(e);
-              // that.dialogVisible2 = true;
               that.currentFTD = ftd;
+              that.currentFTDID = ftd.id;
 
               this.popoverVisible = false;
-                // 设置popover的位置信息
+              // 设置popover的位置信息
               setTimeout(() => {
-                  let wrapperRect = document.querySelector('div[role="application"]').getBoundingClientRect();
-                  let tdRect = ftd.getBoundingClientRect();
-                  let rect = {
-                    x: wrapperRect.x + tdRect.x,
-                    y: Math.abs(wrapperRect.y) + tdRect.y,
-                    left: wrapperRect.left + tdRect.left,
-                    right: wrapperRect.right + tdRect.right,
-                    width: tdRect.width,
-                    height: tdRect.height,
-                  }
-                  this.popoverPosition = rect;
-                  this.popoverVisible = true;
-                  
-                  console.log({wrapperRect, tdRect, rect})
-                })
+                let wrapperRect = document.querySelector('div[role="application"]').getBoundingClientRect();
+                let tdRect = ftd.getBoundingClientRect();
+                let rect = {
+                  x: wrapperRect.x + tdRect.x,
+                  y: Math.abs(wrapperRect.y) + tdRect.y,
+                  left: wrapperRect.left + tdRect.left,
+                  right: wrapperRect.right + tdRect.right,
+                  width: tdRect.width,
+                  height: tdRect.height,
+                }
+                this.popoverPosition = rect;
+                ftd.setAttribute('class', 'rotate-arrow')
+                this.popoverVisible = true;
+                this.lastContent = e;
+
+                console.log({ wrapperRect, tdRect, rect })
+                this.lastContent = this.editor.getContent();
+
+              })
             });
           }
 
@@ -258,9 +283,11 @@ export default {
             if (overLength) {
               td.textContent = td.textContent.substring(0, 50);
             }
-            
+
           })
         })
+        this.lastContent = e;
+
       })
     },
     // 生成图片
@@ -280,12 +307,17 @@ export default {
         })
       })
     },
+  },
+  beforeUpdate() {
+    log('【beforeUpdate】')
+  },
+  updated() {
+    log('【updated】')
   }
 }
 </script>
 
 <style lang="scss">
-
 .rich-text-table {
   .el-popover {
     box-shadow: unset;
@@ -293,13 +325,16 @@ export default {
     width: 200px;
     padding: 0;
   }
+
   .el-select {
     width: 200px;
   }
 }
+
 .el-select-dropdown {
   width: 200px;
 }
+
 #logo {
   display: flex;
   justify-content: center;
@@ -370,7 +405,7 @@ export default {
     background-color: rgb(126, 126, 126, 0.5);
     border-radius: 10px;
   }
-  
+
   .popover-item {
     line-height: 2.5;
     padding: 0 16px;
@@ -381,6 +416,4 @@ export default {
     }
   }
 }
-
-
 </style>
