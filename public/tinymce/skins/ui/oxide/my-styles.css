@@ -2,29 +2,34 @@ td {
   line-height: 2;
 }
 
-.expand {
-  color: red;
-  position: relative;
-}
-
-.expand::after {
-  content: '▲';
-  display: block;
+.select-icon {
   position: absolute;
   top: 0;
   bottom: 0;
   right: 0;
   margin: auto;
-  transform: rotate(-90deg);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(90deg);
 }
 
-.rotate-arrow::after {
-  content: '▲';
-  display: block;
+.show-select-icon {
+  display: flex;
+}
+
+.hide-select-icon {
+  display: none;
+}
+
+.rotate-select-icon {
   position: absolute;
   top: 0;
   bottom: 0;
   right: 0;
   margin: auto;
-  transform: rotate(-180deg) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 100ms;
 }

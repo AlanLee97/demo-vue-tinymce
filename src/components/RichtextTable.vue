@@ -13,9 +13,11 @@
     }">
       <el-popover placement="top-start" :width="popoverPosition.width" trigger="manual" popper-class="my-popper-class"
         v-model="popoverVisible">
-        <div class="popover-item" v-for="item in genOptions" :key="item.value"
-          @click="hnadleClickPopoverItem(item.value)">
-          {{ item.value }}
+        <div class="popover-item-wrapper">
+          <div class="popover-item" v-for="item in genOptions" :key="item.value"
+            @click="hnadleClickPopoverItem(item.value)">
+            {{ item.value }}
+          </div>
         </div>
       </el-popover>
     </div>
@@ -213,6 +215,7 @@ export default {
         let td = this.childDocument.getElementById(this.currentFTDID);
         let oldText = td.textContent;
         let innerHTMLStr = td.getInnerHTML().replace(oldText, e);
+        console.log({innerHTMLStr})
         td.innerHTML = innerHTMLStr;
         td.setAttribute('class', '');
       })
@@ -249,14 +252,19 @@ export default {
             let ftd = tr.firstChild;
             ftd.style.cursor = 'pointer';
             ftd.style.position = 'relative';
+            ftd.style.padding = '0 20px';
+            let span = childDocument.createElement('span');
+            span.innerHTML = `<svg t="1659426199055" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2159" width="12" height="12"><path d="M585.246075 875.340272l408.227201-447.966132c57.440818-63.040395 12.824837-164.374669-72.613865-164.374669H104.224378c-85.25807 0-130.054683 101.334274-72.613865 164.374669l408.407832 447.7855c39.016405 42.809667 106.211325 42.809667 145.22773 0.180632z" p-id="2160"></path></svg>`
+            span.setAttribute('class', 'select-icon')
+            ftd.appendChild(span);
             ftd.addEventListener('mouseenter', () => {
               // console.log('mouseenter', e)
-              ftd.setAttribute('class', 'expand')
+              ftd.lastChild.setAttribute('class', 'select-icon show-select-icon')
               // this.lastContent = this.editor.getContent();
             })
             ftd.addEventListener('mouseleave', () => {
               // console.log('mouseleave', e)
-              ftd.setAttribute('class', ftd.className.replace('expand', ''))
+              ftd.lastChild.setAttribute('class', 'hide-select-icon')
               // this.lastContent = this.editor.getContent();
             })
             // eslint-disable-next-line no-unused-vars
@@ -279,7 +287,7 @@ export default {
                   height: tdRect.height,
                 }
                 this.popoverPosition = rect;
-                ftd.setAttribute('class', 'rotate-arrow')
+                ftd.lastChild.setAttribute('class', 'rotate-select-icon')
                 this.popoverVisible = true;
                 this.lastContent = e;
 
@@ -334,10 +342,10 @@ export default {
 <style lang="scss">
 .rich-text-table {
   .el-popover {
-    box-shadow: unset;
     border: none;
     width: 200px;
     padding: 0;
+    box-sizing: border-box;
   }
 
   .el-select {
@@ -418,6 +426,11 @@ export default {
   &::-webkit-scrollbar-thumb {
     background-color: rgb(126, 126, 126, 0.5);
     border-radius: 10px;
+  }
+
+  .popover-item-wrapper {
+    padding: 16px 0;
+    box-sizing: border-box;
   }
 
   .popover-item {
