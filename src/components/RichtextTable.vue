@@ -8,7 +8,7 @@
 
     <!-- 悬浮的popover -->
     <div v-if="popoverVisible" class="fixed-popover" :style="{
-      top: `${popoverPosition.y + 80}px`,
+      top: `${popoverPosition.y + 45 + popoverPosition.height}px`,
       left: `${popoverPosition.x}px`,
     }">
       <el-popover placement="top-start" :width="popoverPosition.width" trigger="manual" popper-class="my-popper-class"
@@ -199,6 +199,7 @@ export default {
   methods: {
     handleInited(e) {
       log('handleInited', { e });
+      window.childDocument = this.editor.dom.doc;
       this.afterContentChange(e);
     },
     handleSelectChange(e) {
@@ -210,8 +211,10 @@ export default {
       this.selectedValue = '';
       setTimeout(() => {
         let td = this.childDocument.getElementById(this.currentFTDID);
-        td.textContent = e;
-        td.setAttribute('class', '')
+        let oldText = td.textContent;
+        let innerHTMLStr = td.getInnerHTML().replace(oldText, e);
+        td.innerHTML = innerHTMLStr;
+        td.setAttribute('class', '');
       })
     },
 
@@ -280,7 +283,7 @@ export default {
                 this.popoverVisible = true;
                 this.lastContent = e;
 
-                // console.log({ wrapperRect, tdRect, rect })
+                console.log({ wrapperRect, tdRect, rect })
                 this.lastContent = this.editor.getContent();
 
               })
