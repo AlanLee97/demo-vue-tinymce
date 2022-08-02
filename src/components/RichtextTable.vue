@@ -2,8 +2,7 @@
 <template>
   <div class="rich-text-table">
     <div id="logo">
-      <img alt="Vue+Tinymce"
-        src="../assets/vu-tinymce-logo[1].png">
+      <img alt="Vue+Tinymce" src="../assets/vu-tinymce-logo[1].png">
     </div>
 
     <!-- 悬浮的popover -->
@@ -15,7 +14,7 @@
         v-model="popoverVisible">
         <div class="popover-item-wrapper">
           <div class="popover-item" v-for="item in genOptions" :key="item.value"
-            @click="hnadleClickPopoverItem(item.value)">
+            @click="handleClickPopoverItem(item.value)">
             {{ item.value }}
           </div>
         </div>
@@ -25,7 +24,8 @@
     <!-- 富文本编辑器 -->
     <div class="vue-tinymce-wrapper">
       <h2 v-show="loadingTinymce" style="text-align: center;">加载中...</h2>
-      <vue-tinymce ref="vue-tinymce" v-model="content" :setting="setting" @change="tinymceChange" @inited="handleInited" />
+      <vue-tinymce ref="vue-tinymce" v-model="content" :setting="setting" @change="tinymceChange"
+        @inited="handleInited" />
     </div>
 
     <!-- 底部按钮操作区域 -->
@@ -62,7 +62,6 @@ export default {
   },
   data() {
     return {
-      popoverVisible2: true,
       loadingTinymce: true,
       // 初始化表格数据
       // eslint-disable-next-line no-irregular-whitespace
@@ -80,8 +79,7 @@ export default {
         plugins: "link image media table lists fullscreen quickbars importcss",
         content_css: '/tinymce/skins/ui/oxide/my-styles.css',
         importcss_exclusive: false,
-        language: 'zh-Hans', //本地化设置
-        // language_url: "/tinymce/langs/zh-Hans.js", //使用language_url会相对灵活
+        language: 'zh-Hans', //本地化设置 值对应langs文件夹下的汉化包的js名即可
         // language_url: "https://lab.uxfeel.com/node_modules/tinymce/langs/zh_CN.js", //使用language_url会相对灵活
         height: 650,
         branding: false, // 隐藏右下角技术支持
@@ -139,32 +137,17 @@ export default {
 住院费用报销`,
       selectedValue: '', // 下拉框选择的值
       currentFTD: null, // 当前的第一列的第一个单元格的元素
-      currentFTDID: '', // 当前的第一列的第一个单元格的元素
+      currentFTDID: '', // 当前的第一列的第一个单元格的元素的id
       popoverVisible: false, // popover可见性
       popoverPosition: {}, // popover位置信息
-      childDocument: null,
-      lastContent: '',
+      childDocument: null, // 富文本编辑器的document
+      lastContent: '', // 上一次的变化内容
     }
   },
   mounted() {
     this.tinymceInstance = this.$refs['vue-tinymce'];
     this.editor = this.$refs['vue-tinymce'].editor;
-    console.log('tinymce editor', this.editor);
     window.editor = this.editor;
-    // this.editor.on('newrow', val => {
-    //   console.log('newrow', val)
-    // })
-    this.editor.on('input', val => {
-      console.log('input', val)
-    })
-    this.editor.on('focus', val => {
-      console.log('focus', val)
-      val.stopPropagation();
-      val.preventDefault();
-    })
-    // this.editor.on('blur', val => {
-    //   console.log('blur', val)
-    // })
     document.addEventListener('click', () => {
       this.popoverVisible = false;
     })
@@ -190,40 +173,31 @@ export default {
       if (newVal === false) {
         setTimeout(() => {
           let td = this.childDocument.getElementById(this.currentFTDID);
-          console.log({ currentFTD: this.currentFTD, td });
           td.setAttribute('class', '')
-          log('已关闭popover')
         })
       }
     }
   },
 
   methods: {
+    // tinymce初始化完成
     handleInited(e) {
       log('handleInited', { e });
       window.childDocument = this.editor.dom.doc;
       this.afterContentChange(e);
     },
-    handleSelectChange(e) {
-      console.log('handleSelectChange', e)
+    // 处理下拉框选择的数据
+    handleClickPopoverItem(e) {
+      console.log('handleClickPopoverItem', e)
       this.selectedValue = e;
-
       this.popoverVisible = false;
-
-      this.selectedValue = '';
       setTimeout(() => {
         let td = this.childDocument.getElementById(this.currentFTDID);
         let oldText = td.textContent;
+        // 需要保留原有样式，所以只替换原来的文本
         let innerHTMLStr = td.getInnerHTML().replace(oldText, e);
-        console.log({innerHTMLStr})
         td.innerHTML = innerHTMLStr;
-        td.setAttribute('class', '');
       })
-    },
-
-    hnadleClickPopoverItem(val) {
-      this.handleSelectChange(val);
-      console.log('hnadleClickPopoverItem', val);
     },
 
     // 关闭预览弹窗
@@ -237,80 +211,89 @@ export default {
         this.previewDialogVisible = true;
       });
     },
+    // 创建下拉框图标
+    createSelectIcon() {
+      let childDocument = window.childDocument ? window.childDocument : this.editor.dom.doc;
+      let span = childDocument.createElement('span');
+      span.innerHTML = `<svg t="1659426199055" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2159" width="12" height="12"><path d="M585.246075 875.340272l408.227201-447.966132c57.440818-63.040395 12.824837-164.374669-72.613865-164.374669H104.224378c-85.25807 0-130.054683 101.334274-72.613865 164.374669l408.407832 447.7855c39.016405 42.809667 106.211325 42.809667 145.22773 0.180632z" p-id="2160"></path></svg>`
+      span.setAttribute('class', 'select-icon');
+      return span;
+    },
+
+    // 添加下拉框
+    addFakeSelectBox(ftd) {
+      let that = this;
+      ftd.setAttribute('class', 'ftd');
+      ftd.appendChild(this.createSelectIcon());
+      ftd.addEventListener('mouseenter', () => {
+        ftd.lastChild.setAttribute('class', 'select-icon show-select-icon')
+      })
+      ftd.addEventListener('mouseleave', () => {
+        ftd.lastChild.setAttribute('class', 'hide-select-icon')
+      })
+      // eslint-disable-next-line no-unused-vars
+      ftd.addEventListener('click', e => {
+        that.currentFTD = ftd;
+        that.currentFTDID = ftd.id;
+        // 先关闭popover
+        this.popoverVisible = false;
+        // 设置popover的位置信息
+        setTimeout(() => {
+          let wrapperRect = document.querySelector('div[role="application"]').getBoundingClientRect();
+          let tdRect = ftd.getBoundingClientRect();
+          let rect = {
+            x: wrapperRect.x + tdRect.x,
+            y: Math.abs(wrapperRect.y) + tdRect.y,
+            left: wrapperRect.left + tdRect.left,
+            right: wrapperRect.right + tdRect.right,
+            width: tdRect.width,
+            height: tdRect.height,
+          }
+          this.popoverPosition = rect;
+          ftd.lastChild.setAttribute('class', 'rotate-select-icon')
+          this.popoverVisible = true;
+          this.lastContent = e;
+          this.lastContent = this.editor.getContent();
+        })
+      });
+
+    },
+    // 添加td事件
+    addTDEvent(td, i1, i2) {
+      td.setAttribute('id', `td-${i1 + 1}-${i2 + 1}`);
+      td.onclick = () => {
+        this.popoverVisible = false;
+      }
+      // 处理文本不超过50字，todo 这里有问题
+      let overLength = td.textContent.length > 50;
+      if (overLength) {
+        td.textContent = td.textContent.substring(0, 50);
+      }
+    },
+    // 富文本内容变化之后的处理
+    // eslint-disable-next-line no-unused-vars
     afterContentChange(e) {
       window.childDocument = this.editor.dom.doc;
-      let that = this;
-      // if (window.hasHandled) return;
       this.$nextTick(() => {
         let childDocument = this.editor.dom.doc;
         this.childDocument = childDocument;
         let trList = childDocument.querySelectorAll('tr');
-        log('更新DOM事件');
+        // 遍历表格每一行
         [...trList].forEach((tr, index) => {
           // 排除第一个td
           if (index > 0) {
             let ftd = tr.firstChild;
-            ftd.style.cursor = 'pointer';
-            ftd.style.position = 'relative';
-            ftd.style.padding = '0 20px';
-            let span = childDocument.createElement('span');
-            span.innerHTML = `<svg t="1659426199055" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2159" width="12" height="12"><path d="M585.246075 875.340272l408.227201-447.966132c57.440818-63.040395 12.824837-164.374669-72.613865-164.374669H104.224378c-85.25807 0-130.054683 101.334274-72.613865 164.374669l408.407832 447.7855c39.016405 42.809667 106.211325 42.809667 145.22773 0.180632z" p-id="2160"></path></svg>`
-            span.setAttribute('class', 'select-icon')
-            ftd.appendChild(span);
-            ftd.addEventListener('mouseenter', () => {
-              // console.log('mouseenter', e)
-              ftd.lastChild.setAttribute('class', 'select-icon show-select-icon')
-              // this.lastContent = this.editor.getContent();
-            })
-            ftd.addEventListener('mouseleave', () => {
-              // console.log('mouseleave', e)
-              ftd.lastChild.setAttribute('class', 'hide-select-icon')
-              // this.lastContent = this.editor.getContent();
-            })
-            // eslint-disable-next-line no-unused-vars
-            ftd.addEventListener('click', e => {
-              log('click ftd', ftd);
-              that.currentFTD = ftd;
-              that.currentFTDID = ftd.id;
-
-              this.popoverVisible = false;
-              // 设置popover的位置信息
-              setTimeout(() => {
-                let wrapperRect = document.querySelector('div[role="application"]').getBoundingClientRect();
-                let tdRect = ftd.getBoundingClientRect();
-                let rect = {
-                  x: wrapperRect.x + tdRect.x,
-                  y: Math.abs(wrapperRect.y) + tdRect.y,
-                  left: wrapperRect.left + tdRect.left,
-                  right: wrapperRect.right + tdRect.right,
-                  width: tdRect.width,
-                  height: tdRect.height,
-                }
-                this.popoverPosition = rect;
-                ftd.lastChild.setAttribute('class', 'rotate-select-icon')
-                this.popoverVisible = true;
-                this.lastContent = e;
-
-                console.log({ wrapperRect, tdRect, rect })
-                this.lastContent = this.editor.getContent();
-
-              })
-            });
-            // log({ftd});
+            this.addFakeSelectBox(ftd);
           }
 
+          // 遍历表格每一行的单元格
           [...tr.children].forEach((td, i2) => {
-            td.setAttribute('id', `td-${index + 1}-${i2 + 1}`);
-
-            // this.popoverVisible = false;
-            let overLength = td.textContent.length > 50;
-            if (overLength) {
-              td.textContent = td.textContent.substring(0, 50);
-            }
-
+            this.addTDEvent(td, index, i2);
           })
         })
-        this.lastContent = e;
+        setTimeout(() => {
+          this.lastContent = this.editor.getContent();
+        })
       })
     },
     // 富文本内容改变
@@ -347,14 +330,6 @@ export default {
     padding: 0;
     box-sizing: border-box;
   }
-
-  .el-select {
-    width: 200px;
-  }
-}
-
-.el-select-dropdown {
-  width: 200px;
 }
 
 #logo {
@@ -376,11 +351,6 @@ export default {
     margin: auto;
     width: 600px !important;
   }
-}
-
-.test-style {
-  color: red;
-  cursor: pointer;
 }
 
 .preview-img-wrapper {

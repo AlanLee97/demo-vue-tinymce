@@ -2,6 +2,12 @@ td {
   line-height: 2;
 }
 
+.ftd {
+  position: relative;
+  cursor: pointer;
+  padding: 0 20px;
+}
+
 .select-icon {
   position: absolute;
   top: 0;
