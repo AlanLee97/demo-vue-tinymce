@@ -457,13 +457,6 @@ export default {
   width: 800px;
 }
 
-.tox-dialog {
-  .tox-dialog__content-js {
-    margin: auto;
-    width: 600px !important;
-  }
-}
-
 .preview-img-wrapper {
   display: flex;
   justify-content: center;
