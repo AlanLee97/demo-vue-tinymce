@@ -285,6 +285,42 @@ export default {
         td.textContent = td.textContent.substring(0, 50);
       }
     },
+    // 遮盖图片来拖动的方案
+    dragMarkImgSolution(td) {
+      let tdChildren = td.childNodes;
+      tdChildren.forEach(childEl => {
+        if (childEl.tagName === "IMG") {
+          childEl.draggable = false;
+          let div = window.childDocument.createElement('div'); 
+          div.draggable = false;
+          div.appendChild(childEl);
+          div.setAttribute('class', 'img-wrapper')
+          let markdiv = window.childDocument.createElement('div');
+          markdiv.setAttribute('class', 'mark-div');
+          div.appendChild(markdiv);
+          div.addEventListener('mousedown', this.leftDown);
+          const config = { attributes: true, childList: true, subtree: true };
+          const observer = new MutationObserver((mutationsList, observer) => {
+            log({ mutationsList, observer })
+            markdiv.textContent = '';
+          });
+          observer.observe(markdiv, config);
+          td.appendChild(div);
+        }
+      })
+    },
+
+    // 直接拖动图片方案
+    dragImgSolution(td) {
+      let tdChildren = td.childNodes;
+      tdChildren.forEach(childEl => {
+        if (childEl.tagName === "IMG") {
+          childEl.draggable = false;
+          childEl.setAttribute('class', 'move-img');
+          childEl.addEventListener('mousedown', this.leftDown);
+        }
+      })
+    },
     // 富文本内容变化之后的处理
     // eslint-disable-next-line no-unused-vars
     afterContentChange(e) {
@@ -313,33 +349,9 @@ export default {
 
           // 遍历表格每一行的单元格
           [...tr.children].forEach((td, i2) => {
-            td.draggable = false;
             this.addTDEvent(td, index, i2);
-            let tdChildren = td.childNodes;
-            tdChildren.forEach(childEl => {
-              // console.log({ childEl })
-              if (childEl.tagName === "IMG") {
-                childEl.draggable = false;
-                childEl.style.width = '80px';
-                // childEl.addEventListener('mousedown', this.leftDown);
-                let div = window.childDocument.createElement('div'); // HTMLElement
-                div.draggable = false;
-                div.appendChild(childEl);
-                div.setAttribute('class', 'img-wrapper')
-                let markdiv = window.childDocument.createElement('div'); 
-                markdiv.setAttribute('class', 'mark-div');
-                div.appendChild(markdiv);
-                div.addEventListener('mousedown', this.leftDown);
-                const config = { attributes: true, childList: true, subtree: true };
-                const observer = new MutationObserver((mutationsList, observer) => {
-                  log({ mutationsList, observer })
-                  markdiv.textContent = '';
-                });
-                observer.observe(markdiv, config);
-                td.appendChild(div);
-              }
-              
-            })
+            // this.dragMarkImgSolution(td); // 拖动遮罩方案
+            this.dragImgSolution(td); // 直接拖动图片方案
           })
         })
         setTimeout(() => {
@@ -373,8 +385,8 @@ export default {
     // flag 设为 true 表示按下鼠标，并记录鼠标离盒子左上角的相对距离
     leftDown(e) {
       console.log('leftDown', e);
-      this.moveEl = e.target.parentElement;
-      // e.target.setAttribute('class', 'move-img')
+      this.moveEl = e.target; // 直接拖到图片方案
+      // this.moveEl = e.target.parentElement; // 拖动遮罩层方案
 
       if (e.button === 0) {
         // 按下鼠标左键
@@ -414,6 +426,7 @@ export default {
         flag = false;
         this.moveEl = null;
       }
+      // e.target.setAttribute('class', '')
     }
 
   },

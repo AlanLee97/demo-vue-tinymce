@@ -41,9 +41,10 @@ td {
 }
 
 .move-img {
-  /* position: absolute;
+  position: absolute;
   z-index: 99999;
-  cursor: move; */
+  cursor: move;
+  /* width: 80px; */
 }
 
 .img-wrapper {
