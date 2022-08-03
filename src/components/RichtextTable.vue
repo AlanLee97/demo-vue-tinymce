@@ -55,6 +55,10 @@ import VueTinymce from './vue-tinymce.vue'
 
 const { log } = console;
 
+let flag = false;
+let disX, disY;
+let bound;
+
 export default {
   name: 'RichtextTable',
   components: {
@@ -142,6 +146,7 @@ export default {
       popoverPosition: {}, // popover位置信息
       childDocument: null, // 富文本编辑器的document
       lastContent: '', // 上一次的变化内容
+      moveEl: null,
     }
   },
   mounted() {
@@ -154,6 +159,9 @@ export default {
     this.editor.on('Change', (e) => {
       console.log('Change', e);
       this.handleInited();
+    })
+    this.editor.on('focus', (e) => {
+      console.log('focus', e);
     })
   },
 
@@ -190,6 +198,8 @@ export default {
       this.loadingTinymce = false;
       window.childDocument = this.editor.dom.doc;
       this.afterContentChange(e);
+      window.childDocument.addEventListener('mousemove', this.drag);
+      window.childDocument.addEventListener('mouseup', this.leftUp);
     },
     // 处理下拉框选择的数据
     handleClickPopoverItem(e) {
@@ -303,7 +313,33 @@ export default {
 
           // 遍历表格每一行的单元格
           [...tr.children].forEach((td, i2) => {
+            td.draggable = false;
             this.addTDEvent(td, index, i2);
+            let tdChildren = td.childNodes;
+            tdChildren.forEach(childEl => {
+              // console.log({ childEl })
+              if (childEl.tagName === "IMG") {
+                childEl.draggable = false;
+                childEl.style.width = '80px';
+                // childEl.addEventListener('mousedown', this.leftDown);
+                let div = window.childDocument.createElement('div'); // HTMLElement
+                div.draggable = false;
+                div.appendChild(childEl);
+                div.setAttribute('class', 'img-wrapper')
+                let markdiv = window.childDocument.createElement('div'); 
+                markdiv.setAttribute('class', 'mark-div');
+                div.appendChild(markdiv);
+                div.addEventListener('mousedown', this.leftDown);
+                const config = { attributes: true, childList: true, subtree: true };
+                const observer = new MutationObserver((mutationsList, observer) => {
+                  log({ mutationsList, observer })
+                  markdiv.textContent = '';
+                });
+                observer.observe(markdiv, config);
+                td.appendChild(div);
+              }
+              
+            })
           })
         })
         setTimeout(() => {
@@ -333,6 +369,53 @@ export default {
         })
       })
     },
+
+    // flag 设为 true 表示按下鼠标，并记录鼠标离盒子左上角的相对距离
+    leftDown(e) {
+      console.log('leftDown', e);
+      this.moveEl = e.target.parentElement;
+      // e.target.setAttribute('class', 'move-img')
+
+      if (e.button === 0) {
+        // 按下鼠标左键
+        flag = true;
+
+        bound = this.moveEl.getBoundingClientRect();
+        disX = e.clientX - bound.left;
+        disY = e.clientY - bound.top;
+      }
+    },
+
+    drag(e) {
+      console.log('drag');
+
+      if (flag) {
+        let top = e.clientY - disY;
+        let left = e.clientX - disX;
+
+        // 处理边界条件
+        // if (top < 0) top = 0;
+        // if (left < 0) left = 0;
+        // if (top + bound.height > window.childDocument.body.clientHeight) {
+        //   top = window.childDocument.body.clientHeight - bound.height;
+        // }
+        // if (left + bound.width > window.childDocument.body.clientWidth) {
+        //   left = window.childDocument.body.clientWidth - bound.width;
+        // }
+
+        this.moveEl.style.top = `${top}px`;
+        this.moveEl.style.left = `${left}px`;
+      }
+    },
+
+    leftUp(e) {
+      console.log('leftUp', e);
+      if (e.button === 0) {
+        flag = false;
+        this.moveEl = null;
+      }
+    }
+
   },
 }
 </script>
