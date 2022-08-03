@@ -150,6 +150,10 @@ export default {
     window.editor = this.editor;
     document.addEventListener('click', () => {
       this.popoverVisible = false;
+    });
+    this.editor.on('Change', (e) => {
+      console.log('Change', e);
+      this.handleInited();
     })
   },
 
@@ -183,6 +187,7 @@ export default {
     // tinymce初始化完成
     handleInited(e) {
       log('handleInited', { e });
+      this.loadingTinymce = false;
       window.childDocument = this.editor.dom.doc;
       this.afterContentChange(e);
     },
@@ -216,7 +221,7 @@ export default {
       let childDocument = window.childDocument ? window.childDocument : this.editor.dom.doc;
       let span = childDocument.createElement('span');
       span.innerHTML = `<svg t="1659426199055" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2159" width="12" height="12"><path d="M585.246075 875.340272l408.227201-447.966132c57.440818-63.040395 12.824837-164.374669-72.613865-164.374669H104.224378c-85.25807 0-130.054683 101.334274-72.613865 164.374669l408.407832 447.7855c39.016405 42.809667 106.211325 42.809667 145.22773 0.180632z" p-id="2160"></path></svg>`
-      span.setAttribute('class', 'select-icon');
+      span.setAttribute('class', 'mark-select-icon select-icon');
       return span;
     },
 
@@ -226,10 +231,10 @@ export default {
       ftd.setAttribute('class', 'ftd');
       ftd.appendChild(this.createSelectIcon());
       ftd.addEventListener('mouseenter', () => {
-        ftd.lastChild.setAttribute('class', 'select-icon show-select-icon')
+        ftd.lastChild.setAttribute('class', 'mark-select-icon select-icon show-select-icon')
       })
       ftd.addEventListener('mouseleave', () => {
-        ftd.lastChild.setAttribute('class', 'hide-select-icon')
+        ftd.lastChild.setAttribute('class', 'mark-select-icon hide-select-icon')
       })
       // eslint-disable-next-line no-unused-vars
       ftd.addEventListener('click', e => {
@@ -283,7 +288,17 @@ export default {
           // 排除第一个td
           if (index > 0) {
             let ftd = tr.firstChild;
-            this.addFakeSelectBox(ftd);
+            // 处理添加一行的时候，不重复添加select-box
+            let children = ftd.children;
+            let hasAddedSelectBox = false;
+            [...children].forEach(child => {
+              if (child.className.includes('mark-select-icon')) {
+                hasAddedSelectBox = true;
+              }
+            });
+            if (!hasAddedSelectBox) {
+              this.addFakeSelectBox(ftd);
+            }
           }
 
           // 遍历表格每一行的单元格
